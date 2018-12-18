@@ -1,15 +1,13 @@
 package sutilities
 
 import (
-	"github.com/cyanidee/bancho-go/helpers"
-	"strings"
+	"github.com/Gigamons/Shared/shelpers"
 )
 
 func GetUserId(userName string) (error, int32) {
 	var UserID int32
-	lower := strings.ToLower(strings.Replace(userName, " ", "_", -1))
 
-	rows, err := helpers.DBConn.Query("SELECT id FROM users WHERE username_lower=?", lower)
+	rows, err := shelpers.DB.Query("SELECT id FROM users WHERE UserName=?", userName)
 	if err != nil {
 		return err, -1
 	}
@@ -21,4 +19,9 @@ func GetUserId(userName string) (error, int32) {
 	}
 
 	return rows.Close(), UserID
+}
+
+func NewUser(userName string, password string) error {
+	_, err := shelpers.DB.Exec("INSERT INTO users (UserName, Password) VALUES (?, ?)", userName, shelpers.Generate_Hash(password))
+	return err
 }

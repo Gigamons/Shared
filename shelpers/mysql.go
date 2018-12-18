@@ -9,18 +9,16 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var DBConn *sql.DB
+var DB *sql.DB
 
-func AntiTimeout() {
+func AntiTimeout(db *sql.DB) {
 	for {
-		if DBConn == nil {
-			break
-		} else if err := DBConn.Ping(); err != nil {
+		if err := db.Ping(); err != nil {
 			log.Fatalln(err)
 			break
 		}
 
-		time.Sleep(time.Second * 30)
+		time.Sleep(time.Second * 10)
 	}
 }
 
@@ -30,7 +28,8 @@ func ConnectMySQL(hostname string, port uint16,
 	conStr := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", username, password, hostname, port, database)
 	db, err = sql.Open("mysql", conStr)
 
-	DBConn = db
-	go AntiTimeout()
-	return // returns db and err.
+	DB = db
+
+	go AntiTimeout(DB)
+	return
 }
